@@ -1,0 +1,44 @@
+\documentclass[11pt]{jsarticle}
+\usepackage{fancyhdr}
+\usepackage{amsmath,amssymb}
+\pagestyle{fancy}
+\lhead{}
+\rhead{}
+\rhead{\thepage{}}
+\cfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\usepackage{Mayu}
+
+\begin{document}
+    \section{はじめに}
+        この設計書ではネットワークプログラミングの課題5である井戸端会議システムについての大まかな流れや各ソースファイルの概要の説明を記す．
+    \section{プログラムの流れ}
+        以下にこのプログラムの大まかな流れの図を示す．
+        \pict{16}{flow.pdf}{プログラムの流れ}
+\newpage
+    \section{ソースファイルの概要}
+        このプログラムは以下のソースファイルで構成されている．
+        \begin{itemize}
+            \item Conf.c
+            \item Conf\_server.c
+            \item Conf\_client.c
+            \item Conf\_util.c
+            \item Conf\_common.c
+        \end{itemize}
+        それぞれの説明を以下に示す．
+    \subsection{Conf.c}
+        これは初回起動時に実行されるmain文を含む．実行された後オプション文字列を取得しusernameを得る．その後，HELOパケットを送信し返事が帰って来なければConf\_server.cへ，返事が帰ってきたらConf\_client.cへ遷移する．
+    \subsection{Conf\_server.c}
+        自身がサーバーとなるときこれが呼ばれる．まずConf\_server()関数へ移動しスレッドを生成する．生成された先ではUDP通信を用いてHEROパケットを受信したらHEREパケットを送り返す．
+        
+        サーバー本体ではTCP通信により受け取ったパケットごとにヘッダを解析，それに対応した処理を行う．解析処理はMoodleに記載の課題5のヒントに従う．
+        
+    \subsection{Conf\_client.c}
+        自身がクライアントとなるときこれが呼ばれる．Conf\_client()ではまず，サーバーにJOIN usernameメッセージを送信を送信する．その後，MESGが届けばそれを表示し，キーボードからの入力があればPOSTを付け足し送信する．この時，キーボード入力がQUITの時はそのままサーバーに送信し，Conf\_client.cは接続を終了したのちプログラムを終了する．
+    
+    \subsection{Conf\_util.c}
+        このプログラムは各クライアントのユーザー情報を格納する構造体の定義と宣言を行う．宣言はグローバル変数として行う．ユーザーの構造体はユーザー名・ソケット番号・次のユーザーの3つの情報を持つ．次のユーザーが存在しない場合はNULLを指定する．
+        
+    \subsection{Conf\_common.c}
+        このプログラムはacceptやsendといった関数をエラー処理と一緒に呼び出せるようまとめた関数を揃える．必要に応じて各プログラムから呼び出す．
+\end{document}
